@@ -16,19 +16,58 @@ python -m uvicorn app.main:app --reload
 
 Then open <http://127.0.0.1:8000>.
 
-No cloud credentials are needed to run the dashboard. Without Azure AI Foundry
+No cloud credentials are needed to run the dashboard. Without Microsoft Foundry
 configured the chatbot falls back to an offline keyword responder — see
 [The chatbot](#the-chatbot) below.
-
-To connect the real assistant, copy `.env.example` to `.env` and set
-`AZURE_AI_ENDPOINT` and `AZURE_AI_DEPLOYMENT`. Leave `AZURE_AI_API_KEY` blank to
-authenticate with Entra ID (managed identity in Azure, `az login` locally), which
-is the better option anywhere but a laptop.
 
 Tests:
 
 ```bash
 python -m pytest
+```
+
+## Connecting Microsoft Foundry
+
+This needs the Azure control plane, so run it on a machine with the Azure CLI —
+not in a cloud dev container, where outbound access to Azure is usually blocked.
+
+```bash
+az login
+./scripts/setup_foundry.sh        # provisions everything, writes .env
+python scripts/check_foundry.py   # verifies it, explains anything that failed
+```
+
+`setup_foundry.sh` creates a resource group, a Foundry resource (an `AIServices`
+Cognitive Services account with a custom domain), a `gpt-4o` deployment, and the
+role assignment your own account needs to call it. It is safe to re-run — it
+reuses whatever already exists. Everything is overridable:
+
+```bash
+LOCATION=swedencentral MODEL_NAME=gpt-4o SKU_CAPACITY=50 ./scripts/setup_foundry.sh
+```
+
+If the model is not offered in your region the script prints what *is* available
+there and stops, rather than failing halfway through.
+
+**Authentication defaults to keyless.** The app authenticates as your `az login`
+identity through `DefaultAzureCredential`, so no secret is written to disk; in
+Azure the same code path picks up the managed identity. Pass `WRITE_KEY=1` if you
+would rather use an API key — `.env` is gitignored and written `chmod 600` either
+way.
+
+`check_foundry.py` is worth running before the app. It tests the endpoint, the
+credential, **and whether the deployment actually honours tool calls** — the
+chatbot depends on tool calling, and a deployment that silently ignores tools
+would otherwise show up as invented figures rather than an error. It translates
+the usual 401 / 403 / 404 / 429 responses into the specific fix.
+
+To set it up by hand instead, copy `.env.example` to `.env` and fill in
+`AZURE_AI_ENDPOINT` and `AZURE_AI_DEPLOYMENT`.
+
+Tearing it down:
+
+```bash
+az group delete --name rg-finance-workflow --yes --no-wait
 ```
 
 ## What is in it
