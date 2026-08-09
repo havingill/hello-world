@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Finance Workflow Dashboard</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="app-header">
+    <div class="app-header__identity">
+      <span class="app-header__mark" aria-hidden="true"></span>
+      <div>
+        <h1>Finance Workflow Dashboard</h1>
+        <p class="app-header__sub" id="header-sub">Loading portfolio…</p>
+      </div>
+    </div>
+    <div class="app-header__actions">
+      <span class="badge" id="chat-mode-badge" hidden></span>
+      <button type="button" class="icon-button" id="theme-toggle" aria-label="Switch between light and dark theme">
+        <span aria-hidden="true">◐</span>
+      </button>
+      <button type="button" class="icon-button icon-button--chat" id="chat-toggle" aria-expanded="true" aria-controls="chat-panel">
+        Assistant
+      </button>
+    </div>
+  </header>
+
+  <div class="layout" id="layout">
+    <main class="main" id="main" tabindex="-1">
+
+      <!-- One filter row, above everything it scopes. -->
+      <section class="filters" aria-label="Portfolio filters">
+        <div class="filters__field filters__field--grow">
+          <label for="filter-search">Search</label>
+          <input type="search" id="filter-search" placeholder="Process, step, owner, system or tag…" autocomplete="off">
+        </div>
+        <div class="filters__field">
+          <label for="filter-domain">Domain</label>
+          <select id="filter-domain"><option value="">All domains</option></select>
+        </div>
+        <div class="filters__field">
+          <label for="filter-criticality">Criticality</label>
+          <select id="filter-criticality">
+            <option value="">All</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+        <div class="filters__field">
+          <label for="filter-status">Status</label>
+          <select id="filter-status">
+            <option value="">All</option>
+            <option value="active">Active</option>
+            <option value="under_review">Under review</option>
+            <option value="draft">Draft</option>
+            <option value="retired">Retired</option>
+          </select>
+        </div>
+        <button type="button" class="ghost-button" id="filter-reset">Reset</button>
+      </section>
+
+      <!-- List view -->
+      <div id="view-list">
+        <section class="kpi-row" id="kpi-row" aria-label="Portfolio headline figures"></section>
+
+        <section class="card" aria-labelledby="domain-chart-title">
+          <div class="card__head">
+            <div>
+              <h2 id="domain-chart-title">On-time delivery by domain</h2>
+              <p class="card__sub">Share of finished runs that met their SLA, averaged across the processes in each domain.</p>
+            </div>
+            <div class="toggle-group" role="group" aria-label="Chart or table view">
+              <button type="button" class="toggle" data-view-target="domain" data-view="chart" aria-pressed="true">Chart</button>
+              <button type="button" class="toggle" data-view-target="domain" data-view="table" aria-pressed="false">Table</button>
+            </div>
+          </div>
+          <div id="domain-chart"></div>
+          <div id="domain-table" hidden></div>
+        </section>
+
+        <section class="card" aria-labelledby="workflow-list-title">
+          <div class="card__head">
+            <div>
+              <h2 id="workflow-list-title">Processes</h2>
+              <p class="card__sub" id="workflow-count">—</p>
+            </div>
+          </div>
+          <div id="workflow-list"></div>
+        </section>
+      </div>
+
+      <!-- Detail view -->
+      <div id="view-detail" hidden></div>
+    </main>
+
+    <aside class="chat" id="chat-panel" aria-label="Portfolio assistant">
+      <div class="chat__head">
+        <h2>Assistant</h2>
+        <p class="chat__sub" id="chat-sub">Ask about the processes, their performance or what is going wrong.</p>
+      </div>
+      <div class="chat__log" id="chat-log" role="log" aria-live="polite" aria-relevant="additions"></div>
+      <div class="chat__suggestions" id="chat-suggestions"></div>
+      <form class="chat__composer" id="chat-form">
+        <label class="visually-hidden" for="chat-input">Your question</label>
+        <textarea id="chat-input" rows="1" placeholder="Which processes are at risk?" autocomplete="off"></textarea>
+        <button type="submit" id="chat-send" aria-label="Send question">Send</button>
+      </form>
+    </aside>
+  </div>
+
+  <div class="chart-tooltip" id="chart-tooltip" role="status" aria-live="polite" hidden></div>
+
+  <script src="/static/app.js" type="module"></script>
+</body>
+</html>
